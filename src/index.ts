@@ -1,6 +1,9 @@
 // Cryptography
 export { default as RsaCommitSigner } from './crypto/RsaCommitSigner';
 export { default as ICommitSigner } from './crypto/ICommitSigner';
+export { IKeyStore } from './crypto/IKeyStore';
+
+// Identifier
 
 // Requests
 export { default as HubRequest } from './requests/HubRequest';

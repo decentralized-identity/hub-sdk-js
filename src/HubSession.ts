@@ -1,4 +1,4 @@
-import { IDidResolver } from '@decentralized-identity/did-common-typescript';
+import IResolver from './IResolver';
 import { IHubError, IHubResponse, HubErrorCode } from '@decentralized-identity/hub-common-js';
 import { Authentication, CryptoSuite } from '@decentralized-identity/did-auth-jose';
 import HubRequest from './requests/HubRequest';
@@ -38,7 +38,7 @@ export interface HubSessionOptions {
   hubEndpoint: string;
 
   /** A DID resolver instance to be used during authentication. */
-  resolver: IDidResolver;
+  resolver: IResolver;
 
   /**
    * An array of CryptoSuites to use during authentication (optional). Allows the client to provide
@@ -59,12 +59,13 @@ export interface HubSessionOptions {
  */
 export default class HubSession {
 
-  private authentication: Authentication;
   private clientDid: string;
   private clientPrivateKeyReference: string;
   private hubDid: string;
   private hubEndpoint: string;
   private targetDid: string;
+  private resolver: IResolver;
+  private cryptoSuites: CryptoSuite[] | undefined;
 
   private currentAccessToken: string | undefined;
 
@@ -74,13 +75,8 @@ export default class HubSession {
     this.hubDid = options.hubDid;
     this.hubEndpoint = options.hubEndpoint;
     this.targetDid = options.targetDid;
-
-    const kid = this.clientPrivateKeyReference.kid;
-    this.authentication = new Authentication({
-      keys: { [kid] : this.clientPrivateKeyReference },
-      resolver: options.resolver,
-      cryptoSuites: options.cryptoSuites,
-    });
+    this.resolver = options.resolver;
+    this.cryptoSuites = options.cryptoSuites;
   }
 
   /**

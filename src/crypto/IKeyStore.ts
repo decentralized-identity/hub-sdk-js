@@ -1,6 +1,6 @@
 
-import { SignatureFormat } from './SignatureFormat';
-import { PrivateKey } from '@decentralized-identity/did-auth-jose';
+import { ProtectionFormat } from './ProtectionFormat';
+import { PrivateKey, PublicKey } from '@decentralized-identity/did-auth-jose';
 
 /**
  * Interface defining methods and properties to
@@ -11,8 +11,9 @@ export default interface IKeyStore {
    * Returns the key associated with the specified
    * key reference.
    * @param keyIdentifier for which to return the key.
+   * @param publicKeyOnly True if only the public key is needed.
    */
-  get (keyReference: string): Promise<Buffer | PrivateKey>;
+  get (keyReference: string, publicKeyOnly: boolean): Promise<Buffer | PrivateKey | PublicKey>;
 
   /**
    * Saves the specified key to the key store using
@@ -26,7 +27,7 @@ export default interface IKeyStore {
    * Sign the data with the key referenced by keyReference.
    * @param keyReference Reference to the key used for signature.
    * @param data Data to sign
-   * @param format Signature format
+   * @param format Protection format used to sign and/or encrypt data
    */
-  sign (keyReference: string, data: string, format: SignatureFormat): Promise<string>;
+  protect (keyReference: string, data: string, format: ProtectionFormat): Promise<string>;
 }
