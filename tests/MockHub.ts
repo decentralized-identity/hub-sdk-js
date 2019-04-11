@@ -1,6 +1,6 @@
 import { PrivateKey, Authentication, VerifiedRequest } from "@decentralized-identity/did-auth-jose";
-import { IDidResolver } from "@decentralized-identity/did-common-typescript";
 import { Response, Request } from 'node-fetch';
+import IResolver from './IResolver';
 
 /** Handler to intercept requests before they are authenticated. */
 type MockHubPreAuthHandler = (body: Buffer) => Promise<Response | undefined>;
@@ -23,7 +23,7 @@ type MockHubHandler = (params: MockHubHandlerParameters) => Promise<Response | s
 interface MockHubOptions {
   hubDid: string;
   hubPrivateKey: PrivateKey;
-  resolver: IDidResolver;
+  resolver: IResolver;
 }
 
 /**
@@ -34,20 +34,15 @@ interface MockHubOptions {
  */
 export default class MockHub {
 
-  private authentication: Authentication;
-
   private preAuthHandler: MockHubPreAuthHandler | undefined;
   private handler: MockHubHandler | undefined;
+  private resolver: IResolver;
+  private kid: string;
 
   constructor(options: MockHubOptions) {
 
-    this.authentication = new Authentication({
-      resolver: options.resolver,
-      keys: {
-        [options.hubPrivateKey.kid]: options.hubPrivateKey
-      }
-    });
-
+    this.resolver = options.resolver;
+    this.kid = options.hubPrivateKey.kid;
   }
 
   /**

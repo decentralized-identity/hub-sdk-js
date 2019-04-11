@@ -1,10 +1,10 @@
 
-import { IIdentifierDocument } from './IIdentifierDocument';
+import IIdentifierDocument from './IIdentifierDocument';
 
 /**
  * Interface for managing identifiers
  */
-export interface IIdentifier {
+export default interface IIdentifier {
   /**
    * The string representation of the identier for the persona
    * in the format 'did:{method}:{id}'.

@@ -1,6 +1,6 @@
 
-import { IIdentifier } from './IIdentifier';
-import { IIdentifierDocument } from './IIdentifierDocument';
+import IIdentifier from './IIdentifier';
+import IIdentifierDocument from './IIdentifierDocument';
 
 /**
  * Interface defining methods and properties to

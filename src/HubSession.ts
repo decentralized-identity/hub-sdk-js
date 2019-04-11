@@ -52,6 +52,12 @@ export interface HubSessionOptions {
    * to get and save keys.
    */
   keyStore?: IKeyStore;
+
+  /**
+   * The timeout when making requests to
+   * external services.
+   */
+  timeoutInSeconds?: number;
 }
 
 /**

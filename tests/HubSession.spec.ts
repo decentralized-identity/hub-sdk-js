@@ -11,6 +11,8 @@ import { PrivateKey, Authentication } from '@decentralized-identity/did-auth-jos
 import MockResolver from './MockResolver';
 import { Request, Response } from 'node-fetch';
 import MockHub from './MockHub';
+import IKeyStore from '../src/crypto/IKeyStore';
+import KeyStoreMock from './crypto/KeyStoreMock';
 
 let clientPrivateKey: PrivateKey;
 const clientDid = 'did:fake:client.id';
@@ -53,13 +55,18 @@ describe('HubSession', () => {
         resolver: mockResolver
       });
       
+      const kid = 'testkey';
+      const keyStore: IKeyStore = new KeyStoreMock();
+      keyStore.save(kid, clientPrivateKey);
+
       session = new HubSession({
         clientDid: 'did:fake:client.id',
-        clientPrivateKey: clientPrivateKey,
+        clientPrivateKeyReference: kid,
         targetDid: 'did:fake:target.id',
         hubDid,
         hubEndpoint: 'https://example.com',
         resolver: mockResolver,
+        keyStore: keyStore
       });
 
       // Redirect fetch() calls to mockHub

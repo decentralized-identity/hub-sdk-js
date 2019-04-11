@@ -1,5 +1,5 @@
 import RsaPrivateKey from '@decentralized-identity/did-auth-jose/dist/lib/crypto/rsa/RsaPrivateKey';
-import { HttpResolver } from '@decentralized-identity/did-common-typescript';
+import HttpResolver from './HttpResolver';
 import HubSession from './HubSession';
 import HubWriteRequest from './requests/HubWriteRequest';
 import RsaCommitSigner from './crypto/RsaCommitSigner';
@@ -7,6 +7,8 @@ import Commit from './Commit';
 import HubObjectQueryRequest from './requests/HubObjectQueryRequest';
 import HubCommitQueryRequest from './requests/HubCommitQueryRequest';
 import CommitStrategyBasic from './CommitStrategyBasic';
+import { IKeyStore } from './index';
+import KeyStoreMock from './crypto/KeyStoreMock';
 
 // Fill these in with specific values.
 const HTTP_RESOLVER = 'HTTP_RESOLVER_ENDPOINT_HERE';
@@ -31,13 +33,17 @@ async function runExample() {
     const kid = `${DID}#${PRIVATE_KEY.kid}`;
     const privateKey = RsaPrivateKey.wrapJwk(kid, PRIVATE_KEY);
 
+    const keyStore: IKeyStore = new KeyStoreMock();
+    keyStore.save(kid, privateKey);
+
     const session = new HubSession({
       hubEndpoint: HUB_ENDPOINT,
       hubDid: HUB_DID,
       resolver: new HttpResolver(HTTP_RESOLVER),
       clientDid: DID,
-      clientPrivateKey: privateKey,
+      clientPrivateKeyReference: kid,
       targetDid: DID,
+      keyStore: keyStore
     });
 
     //

@@ -4,7 +4,7 @@ import { PublicKey } from '@decentralized-identity/did-auth-jose';
  * Interface for creating and managing identifiers,
  * retrieving identifier documents.
  */
-export interface IIdentifierDocument {
+export default interface IIdentifierDocument {
 
   /**
    * The identifier the document represents.

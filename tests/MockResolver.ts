@@ -1,10 +1,12 @@
-import { IDidResolver, DidDocument } from '@decentralized-identity/did-common-typescript';
 import { PublicKey } from '@decentralized-identity/did-auth-jose';
+import IIdentifier from './IIdentifier';
+import IIdentifierDocument from './IIdentifierDocument';
+import IResolver from './IResolver';
 
 /**
- * Mock implementation of a DidResolver which will return the configured DID documents.
+ * Mock implementation of a IResolver which will return the configured DID documents.
  */
-export default class MockResolver implements IDidResolver {
+export default class MockResolver implements IResolver {
 
   private keys: {[did: string]: PublicKey} = {};
 
@@ -24,26 +26,26 @@ export default class MockResolver implements IDidResolver {
   /**
    * Resolves the given DID.
    */
-  async resolve(did: string) {
+  async resolve(did: IIdentifier): Promise<IIdentifierDocument> {
 
-    const key = this.keys[did];
+    const key = this.keys[did.id];
 
     if (!key) {
-      throw new Error(`MockResolver has no entry for requested DID: ${did}`);
+      throw new Error(`MockResolver has no entry for requested DID: ${did.id}`);
     }
 
-    return {
-      didDocument: new DidDocument({
-        "@context": "https://w3id.org/did/v1",
-        id: did,
+    return new Promise((resolvePromise) => { 
+      const identifierDocument: any = {
+        id: did.id,
         publicKey: [{
           id: key.kid,
           type: 'RsaVerificationKey2018',
           controller: did,
           publicKeyJwk: key
         }]
-      })
-    };
-  }
+      };
 
+      return resolvePromise(identifierDocument as IIdentifierDocument);
+    });
+  }
 }
