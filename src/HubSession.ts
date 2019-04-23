@@ -1,6 +1,6 @@
-import IResolver from './IResolver';
 import { IHubError, IHubResponse, HubErrorCode } from '@decentralized-identity/hub-common-js';
 import { Authentication, CryptoSuite } from '@decentralized-identity/did-auth-jose';
+import { HttpResolver, IDidResolver } from '@decentralized-identity/did-common-typescript';
 import HubRequest from './requests/HubRequest';
 import IKeyStore from './crypto/IKeyStore';
 import HubError from './HubError';
@@ -38,7 +38,7 @@ export interface HubSessionOptions {
   hubEndpoint: string;
 
   /** A DID resolver instance to be used during authentication. */
-  resolver: IResolver;
+  resolver: IDidResolver;
 
   /**
    * An array of CryptoSuites to use during authentication (optional). Allows the client to provide
@@ -51,7 +51,7 @@ export interface HubSessionOptions {
    * Instance of KeyStore than can be used
    * to get and save keys.
    */
-  keyStore?: IKeyStore;
+  keyStore: IKeyStore;
 
   /**
    * The timeout when making requests to
@@ -66,23 +66,26 @@ export interface HubSessionOptions {
 export default class HubSession {
 
   private clientDid: string;
-  private clientPrivateKeyReference: string;
   private hubDid: string;
   private hubEndpoint: string;
   private targetDid: string;
-  private resolver: IResolver;
-  private cryptoSuites: CryptoSuite[] | undefined;
-
+  private resolver: IDidResolver;
   private currentAccessToken: string | undefined;
+  private privateKey: any;
+  private clientPrivateKeyReference: string;
+  private keyStore: IKeyStore;
 
   constructor(options: HubSessionOptions) {
-    this.clientPrivateKeyReference = options.clientPrivateKeyReference;
     this.clientDid = options.clientDid;
     this.hubDid = options.hubDid;
     this.hubEndpoint = options.hubEndpoint;
     this.targetDid = options.targetDid;
+
+    // TODO needs to streamline IResolver in jose-auth
     this.resolver = options.resolver;
-    this.cryptoSuites = options.cryptoSuites;
+
+    this.keyStore = options.keyStore;
+    this.clientPrivateKeyReference = options.clientPrivateKeyReference;
   }
 
   /**
@@ -141,7 +144,16 @@ export default class HubSession {
    */
   private async makeRequest(message: string, accessToken?: string): Promise<string> {
 
-    const requestBuffer = await this.authentication.getAuthenticatedRequest(message, this.clientPrivateKeyReference, this.hubDid, accessToken);
+    // TODO client libraries never pass the keys because the key is possibly
+    // not available to the client (might be in a hardware module). Need to pass a reference to key store.
+    this.privateKey = await this.keyStore.get(this.clientPrivateKeyReference, false);
+    const kid: string = this.privateKey.kid;
+    const authentication = new Authentication({
+      resolver: this.resolver,
+      keys: { [kid] : this.privateKey },
+    });
+
+    const requestBuffer = await authentication.getAuthenticatedRequest(message, this.privateKey, this.hubDid, accessToken);
 
     const res = await this.callFetch(this.hubEndpoint, {
       method: 'POST',
@@ -158,7 +170,7 @@ export default class HubSession {
     }
 
     const response = await res.buffer();
-    const plainResponse = await this.authentication.getVerifiedRequest(response, false);
+    const plainResponse = await authentication.getVerifiedRequest(response, false);
     if (plainResponse instanceof Buffer) {
       // This should never happen as it means we are trying to return an access token in response
       throw new Error('Internal error during decryption.');
