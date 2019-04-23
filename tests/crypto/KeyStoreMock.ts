@@ -45,7 +45,13 @@ export default class KeyStoreMock implements IKeyStore {
    * @param data Data to sign
    * @param format Signature format
    */
-  public async protect (keyIdentifier: string, data: string, _format: ProtectionFormat): Promise<string> {
-    return Protect.sign(data, keyIdentifier, this);
+  public async protect (keyIdentifier: string, data: string, format: ProtectionFormat): Promise<string> {
+    switch (format) {
+      case ProtectionFormat.FlatJsonJws:
+        return Protect.sign(data, keyIdentifier, this);
+
+      case ProtectionFormat.DidAuthentication:
+        return Protect.sign(data, keyIdentifier, this);
+    }
   }
 }
