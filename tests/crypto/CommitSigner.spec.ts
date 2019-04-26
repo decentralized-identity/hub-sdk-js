@@ -1,8 +1,8 @@
 import { ICommitProtectedHeaders } from '@decentralized-identity/hub-common-js';
-import CommitSigner from './CommitSigner';
+import CommitSigner from '../../src/crypto/CommitSigner';
 import RsaPrivateKey from '@decentralized-identity/did-auth-jose/dist/lib/crypto/rsa/RsaPrivateKey';
 import { EcPrivateKey, Secp256k1CryptoSuite } from '@decentralized-identity/did-auth-jose';
-import Commit from '../Commit';
+import Commit from '../../src/Commit';
 
 describe('CommitSigner', () => {
 
