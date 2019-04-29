@@ -1,7 +1,8 @@
 // Cryptography
 export { default as RsaCommitSigner } from './crypto/RsaCommitSigner';
 export { default as ICommitSigner } from './crypto/ICommitSigner';
-export { default as IKeyStore } from './crypto/IKeyStore';
+import { IKeyStore, KeyStoreMem, ProtectionFormat } from '@decentralized-identity/did-auth-jose';
+export { IKeyStore, KeyStoreMem, ProtectionFormat } ;
 
 // Identifier
 

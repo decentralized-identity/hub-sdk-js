@@ -7,8 +7,7 @@ import Commit from './Commit';
 import HubObjectQueryRequest from './requests/HubObjectQueryRequest';
 import HubCommitQueryRequest from './requests/HubCommitQueryRequest';
 import CommitStrategyBasic from './CommitStrategyBasic';
-import { IKeyStore } from './index';
-import KeyStoreMock from './crypto/KeyStoreMock';
+import { KeyStoreMem, IKeyStore } from './index';
 
 // Fill these in with specific values.
 const HTTP_RESOLVER = 'HTTP_RESOLVER_ENDPOINT_HERE';
@@ -33,7 +32,7 @@ async function runExample() {
     const kid = `${DID}#${PRIVATE_KEY.kid}`;
     const privateKey = RsaPrivateKey.wrapJwk(kid, PRIVATE_KEY);
 
-    const keyStore: IKeyStore = new KeyStoreMock();
+    const keyStore: IKeyStore = new KeyStoreMem();
     keyStore.save(kid, privateKey);
 
     const session = new HubSession({

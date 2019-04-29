@@ -7,12 +7,10 @@ import HubObjectQueryResponse from '../src/responses/HubObjectQueryResponse';
 import HubError from '../src/HubError';
 import SignedCommit from '../src/SignedCommit';
 import RsaPrivateKey from '@decentralized-identity/did-auth-jose/dist/lib/crypto/rsa/RsaPrivateKey';
-import { PrivateKey, Authentication } from '@decentralized-identity/did-auth-jose';
+import { PrivateKey, KeyStoreMem, IKeyStore } from '@decentralized-identity/did-auth-jose';
 import MockResolver from './MockResolver';
 import { Request, Response } from 'node-fetch';
 import MockHub from './MockHub';
-import IKeyStore from '../src/crypto/IKeyStore';
-import KeyStoreMock from './crypto/KeyStoreMock';
 
 let clientPrivateKey: PrivateKey;
 const clientDid = 'did:fake:client.id';
@@ -56,7 +54,7 @@ describe('HubSession', () => {
       });
       
       const kid = 'testkey';
-      const keyStore: IKeyStore = new KeyStoreMock();
+      const keyStore: IKeyStore = new KeyStoreMem();
       keyStore.save(kid, clientPrivateKey);
 
       session = new HubSession({

@@ -1,8 +1,7 @@
 import { IHubError, IHubResponse, HubErrorCode } from '@decentralized-identity/hub-common-js';
-import { Authentication, CryptoSuite } from '@decentralized-identity/did-auth-jose';
+import { Authentication, CryptoSuite, IKeyStore } from '@decentralized-identity/did-auth-jose';
 import { HttpResolver, IDidResolver } from '@decentralized-identity/did-common-typescript';
 import HubRequest from './requests/HubRequest';
-import IKeyStore from './crypto/IKeyStore';
 import HubError from './HubError';
 import HubWriteRequest from './requests/HubWriteRequest';
 import HubWriteResponse from './responses/HubWriteResponse';
@@ -71,7 +70,6 @@ export default class HubSession {
   private targetDid: string;
   private resolver: IDidResolver;
   private currentAccessToken: string | undefined;
-  private privateKey: any;
   private clientPrivateKeyReference: string;
   private keyStore: IKeyStore;
 
@@ -144,16 +142,14 @@ export default class HubSession {
    */
   private async makeRequest(message: string, accessToken?: string): Promise<string> {
 
-    // TODO client libraries never pass the keys because the key is possibly
-    // not available to the client (might be in a hardware module). Need to pass a reference to key store.
-    this.privateKey = await this.keyStore.get(this.clientPrivateKeyReference, false);
-    const kid: string = this.privateKey.kid;
+    // Setup authentication context
     const authentication = new Authentication({
       resolver: this.resolver,
-      keys: { [kid] : this.privateKey },
+      keyStore: this.keyStore,
+      keyReferences: [this.clientPrivateKeyReference],
     });
 
-    const requestBuffer = await authentication.getAuthenticatedRequest(message, this.privateKey, this.hubDid, accessToken);
+    const requestBuffer = await authentication.getAuthenticatedRequest(message, this.hubDid, accessToken);
 
     const res = await this.callFetch(this.hubEndpoint, {
       method: 'POST',
