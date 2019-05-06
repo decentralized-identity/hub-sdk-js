@@ -132,7 +132,7 @@ export default class HubSession {
    */
   private async makeRequest(message: string, accessToken?: string): Promise<string> {
 
-    const requestBuffer = await this.authentication.getAuthenticatedRequest(message, this.clientPrivateKey, this.hubDid, accessToken);
+    const requestBuffer = await this.authentication.getAuthenticatedRequest(message, this.hubDid, accessToken);
 
     const res = await this.callFetch(this.hubEndpoint, {
       method: 'POST',
