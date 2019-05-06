@@ -36,13 +36,13 @@ async function runExample() {
     keyStore.save(kid, privateKey);
 
     const session = new HubSession({
+      keyStore,
       hubEndpoint: HUB_ENDPOINT,
       hubDid: HUB_DID,
       resolver: new HttpResolver(HTTP_RESOLVER),
       clientDid: DID,
       clientPrivateKeyReference: kid,
       targetDid: DID,
-      keyStore: keyStore
     });
 
     //
