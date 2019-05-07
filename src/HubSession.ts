@@ -51,12 +51,6 @@ export interface HubSessionOptions {
    * to get and save keys.
    */
   keyStore: IKeyStore;
-
-  /**
-   * The timeout when making requests to
-   * external services.
-   */
-  timeoutInSeconds?: number;
 }
 
 /**
@@ -72,6 +66,7 @@ export default class HubSession {
   private currentAccessToken: string | undefined;
   private clientPrivateKeyReference: string;
   private keyStore: IKeyStore;
+  private authentication: Authentication;
 
   constructor(options: HubSessionOptions) {
     this.clientDid = options.clientDid;
@@ -84,6 +79,14 @@ export default class HubSession {
 
     this.keyStore = options.keyStore;
     this.clientPrivateKeyReference = options.clientPrivateKeyReference;
+
+    // Setup authentication context
+    this.authentication = new Authentication({
+      resolver: this.resolver,
+      keyStore: this.keyStore,
+      keyReferences: [this.clientPrivateKeyReference],
+    });
+
   }
 
   /**
@@ -142,14 +145,7 @@ export default class HubSession {
    */
   private async makeRequest(message: string, accessToken?: string): Promise<string> {
 
-    // Setup authentication context
-    const authentication = new Authentication({
-      resolver: this.resolver,
-      keyStore: this.keyStore,
-      keyReferences: [this.clientPrivateKeyReference],
-    });
-
-    const requestBuffer = await authentication.getAuthenticatedRequest(message, this.hubDid, accessToken);
+    const requestBuffer = await this.authentication.getAuthenticatedRequest(message, this.hubDid, accessToken);
 
     const res = await this.callFetch(this.hubEndpoint, {
       method: 'POST',
@@ -166,7 +162,7 @@ export default class HubSession {
     }
 
     const response = await res.buffer();
-    const plainResponse = await authentication.getVerifiedRequest(response, false);
+    const plainResponse = await this.authentication.getVerifiedRequest(response, false);
     if (plainResponse instanceof Buffer) {
       // This should never happen as it means we are trying to return an access token in response
       throw new Error('Internal error during decryption.');
