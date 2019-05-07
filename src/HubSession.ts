@@ -62,10 +62,7 @@ export default class HubSession {
   private hubDid: string;
   private hubEndpoint: string;
   private targetDid: string;
-  private resolver: IDidResolver;
   private currentAccessToken: string | undefined;
-  private clientPrivateKeyReference: string;
-  private keyStore: IKeyStore;
   private authentication: Authentication;
 
   constructor(options: HubSessionOptions) {
@@ -74,17 +71,11 @@ export default class HubSession {
     this.hubEndpoint = options.hubEndpoint;
     this.targetDid = options.targetDid;
 
-    // TODO needs to streamline IResolver in jose-auth
-    this.resolver = options.resolver;
-
-    this.keyStore = options.keyStore;
-    this.clientPrivateKeyReference = options.clientPrivateKeyReference;
-
     // Setup authentication context
     this.authentication = new Authentication({
-      resolver: this.resolver,
-      keyStore: this.keyStore,
-      keyReferences: [this.clientPrivateKeyReference],
+      resolver: options.resolver,
+      keyStore: options.keyStore,
+      keyReferences: [options.clientPrivateKeyReference],
     });
 
   }
