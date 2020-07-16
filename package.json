@@ -39,7 +39,7 @@
     "jasmine-reporters": "2.3.2",
     "jasmine-spec-reporter": "4.2.1",
     "jasmine-ts": "0.3.0",
-    "lodash": "4.17.11",
+    "lodash": "4.17.19",
     "nyc": "14.1.0",
     "ts-node": "7.0.1",
     "tslint": "5.12.1",
