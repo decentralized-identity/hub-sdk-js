@@ -26,7 +26,7 @@
     "@decentralized-identity/did-common-typescript": "0.1.18",
     "@decentralized-identity/did-crypto-typescript": "0.1.6",
     "@decentralized-identity/hub-common-js": "0.1.2",
-    "node-fetch": "2.3.0",
+    "node-fetch": "3.1.1",
     "object-assign": "4.1.1"
   },
   "devDependencies": {
